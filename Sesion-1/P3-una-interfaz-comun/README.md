@@ -23,5 +23,6 @@ Código: [`llm_client.py`](llm_client.py)
 - `python llm_client.py` responde con los tres proveedores y ya no aparece ningún «pendiente».
 - `LLM("claude").responder("Responde en una frase.", "¿Qué es un token?").coste_usd` devuelve una cifra, no `None`.
 - Con `max_tokens=20`, los tokens de salida no pasan de 20. Si algún modelo devuelve el texto vacío, piensa por qué (apartado 3).
+  - **Respuesta:** Ocurre porque ciertos modelos (como Gemini a través de OpenRouter) generan **tokens de razonamiento/pensamiento interno (*thinking tokens*)** antes de empezar a redactar. Estos tokens de pensamiento consumen el presupuesto de salida; si fijamos un límite tan bajo como 20 tokens, el modelo agota todos los tokens disponibles pensando y no le queda margen para emitir el texto final visible.
 
 **Qué entregas:** `e1/llm_client.py` en tu repositorio de entregas.
