@@ -1,7 +1,7 @@
-# Guía Maestra de Estudio: Sesión 2 - Salidas Estructuradas y Uso de Herramientas
-> **Asignatura:** Máster en IA · Bloque 4  
-> **Caso Práctico:** Tostadero Retiro S.L.  
-> **Preparación para la defensa oral individual con el profesor (Entregable E2)**
+# Mis Apuntes: Sesión 2 · Salidas Estructuradas y Uso de Herramientas
+
+Máster en IA · Bloque 4: Agentes y LLMs  
+Caso práctico: Tostadero Retiro S.L.
 
 ---
 
@@ -12,7 +12,7 @@
 4. [La joya técnica 1: Salidas Estructuradas con Pydantic (`s2_extraer_correo.py`)](#4-la-joya-técnica-1-salidas-estructuradas-con-pydantic)
 5. [La joya técnica 2: El Bucle de Herramientas (*Function Calling Loop*)](#5-la-joya-técnica-2-el-bucle-de-herramientas)
 6. [Comparativa de Proveedores: OpenAI vs. Claude](#6-comparativa-de-proveedores-openai-vs-claude)
-7. [Simulacro de examen: Las 7 preguntas del profesor y cómo responder](#7-simulacro-de-examen)
+7. [Preguntas clave para repasar](#7-preguntas-clave-para-repasar)
 
 ---
 
@@ -135,50 +135,43 @@ sequenceDiagram
 
 ---
 
-## 7. Simulacro de examen
+## 7. Preguntas clave para repasar
 
-### ❓ 1. "¿Por qué usamos Pydantic en P1 en vez de pedirle un JSON normal a la IA en el prompt?"
-> **Tu respuesta:**  
-> *"Porque pedirle un JSON en texto libre no garantiza que el modelo lo cumpla: puede equivocarse en una coma, inventar campos o añadir texto de cortesía antes del JSON. Con Pydantic y el método `.parse()`, la API activa el modo de salidas estructuradas (*Structured Outputs*), que fuerza matemáticamente al modelo a ceñirse al esquema y nos devuelve un objeto validado de Python directamente."*
-
----
-
-### ❓ 2. "¿Qué validación de negocio añadiste en P1 y qué ocurre si el cliente no está en la base de datos?"
-> **Tu respuesta:**  
-> *"El esquema garantiza la forma del dato, pero no que exista en el mundo real. Añadí una comprobación con `buscar_cliente(resultado.cliente)` importada de `herramientas.py`. Si el cliente citado en el correo no existe en `tostadero.db` (como probamos con 'Restaurante Fantasma' o 'Cafetería Los Rosales'), el programa lo detecta y muestra un aviso por consola."*
+### ¿Por qué usamos Pydantic en P1 en vez de pedirle un JSON normal a la IA en el prompt?
+Porque pedirle un JSON en texto libre no garantiza que el modelo lo cumpla: puede equivocarse en una coma, inventar campos o añadir texto de cortesía antes del JSON. Con Pydantic y el método `.parse()`, la API activa el modo de salidas estructuradas (*Structured Outputs*), que fuerza matemáticamente al modelo a ceñirse al esquema y nos devuelve un objeto validado de Python directamente.
 
 ---
 
-### ❓ 3. "¿La IA tiene acceso directo para hacer consultas SQL a la base de datos?"
-> **Tu respuesta:**  
-> *"No, bajo ningún concepto. Por seguridad, la IA no ejecuta código ni tiene credenciales de base de datos. La IA solo propone qué herramienta necesita y con qué argumentos. Nuestro código en Python es quien ejecuta la función SQL predefinida y controlada, y le devuelve únicamente el resultado de datos."*
+### ¿Qué validación de negocio añadí en P1 y qué ocurre si el cliente no está en la base de datos?
+El esquema garantiza la forma del dato, pero no que exista en el mundo real. Añadí una comprobación con `buscar_cliente(resultado.cliente)` importada de `herramientas.py`. Si el cliente citado en el correo no existe en `tostadero.db` (como probamos con 'Restaurante Fantasma' o 'Cafetería Los Rosales'), el programa lo detecta y muestra un aviso por consola.
 
 ---
 
-### ❓ 4. "¿Por qué hay un bucle `for _ in range(max_vueltas)` en `s2_chat_herramientas.py`?"
-> **Tu respuesta:**  
-> *"Porque una consulta puede requerir varias herramientas encadenadas. Por ejemplo, para saber los pedidos de un bar, primero necesita buscar el cliente para averiguar su ID (vuelta 1), y luego consultar los pedidos con ese ID (vuelta 2). El bucle permite tantas vueltas como herramientas necesite encadenar, con un tope de seguridad (`max_vueltas=5`) para evitar bucles infinitos."*
+### ¿La IA tiene acceso directo para hacer consultas SQL a la base de datos?
+No, bajo ningún concepto. Por seguridad, la IA no ejecuta código ni tiene credenciales de base de datos. La IA solo propone qué herramienta necesita y con qué argumentos. Nuestro código en Python es quien ejecuta la función SQL predefinida y controlada, y le devuelve únicamente el resultado de datos.
 
 ---
 
-### ❓ 5. "Cuando le pediste 'Borra el pedido 1003', ¿qué hizo el asistente y por qué?"
-> **Tu respuesta:**  
-> *"Hizo 0 llamadas a herramientas. Revisó las definiciones disponibles (`buscar_cliente`, `consultar_pedidos`, `stock_producto`, `crear_incidencia`) y, al no existir ninguna función de borrado, no inventó nada: respondió honestamente diciendo que no tiene herramientas para borrar pedidos y ofreció consultar sus datos."*
+### ¿Por qué hay un bucle `for _ in range(max_vueltas)` en `s2_chat_herramientas.py`?
+Porque una consulta puede requerir varias herramientas encadenadas. Por ejemplo, para saber los pedidos de un bar, primero necesita buscar el cliente para averiguar su ID (vuelta 1), y luego consultar los pedidos con ese ID (vuelta 2). El bucle permite tantas vueltas como herramientas necesite encadenar, con un tope de seguridad (`max_vueltas=5`) para evitar bucles infinitos.
 
 ---
 
-### ❓ 6. "¿Qué diferencias hay entre el bucle de OpenAI y el de Claude?"
-> **Tu respuesta:**  
-> *"Principalmente el formato de los mensajes y de las herramientas:*  
-> *- OpenAI usa `tools=para_openai()` en la Responses API y devuelve elementos con `type: 'function_call'`, respondiendo con `type: 'function_call_output'`.*  
-> *- Claude usa `tools=para_claude()` en la Messages API y devuelve bloques `ToolUseBlock`, esperando de vuelta un mensaje de usuario con bloques de tipo `tool_result` vinculados al `tool_use_id`."*
+### Cuando le pedí 'Borra el pedido 1003', ¿qué hizo el asistente y por qué?
+Hizo 0 llamadas a herramientas. Revisó las definiciones disponibles (`buscar_cliente`, `consultar_pedidos`, `stock_producto`, `crear_incidencia`) y, al no existir ninguna función de borrado, no inventó nada: respondió honestamente diciendo que no tiene herramientas para borrar pedidos y ofreció consultar sus datos.
 
 ---
 
-### ❓ 7. "¿Qué archivos componen tu entregable E2?"
-> **Tu respuesta:**  
-> *"En la carpeta `e2/` están los 3 archivos oficiales:*  
-> *1. `s2_extraer_correo.py` con los 15 casos y la validación en BD.*  
-> *2. `s2_chat_claude.py` con el bucle de herramientas funcionando en Anthropic.*  
-> *3. `analisis.md` con las tablas de evaluación, el detalle de las trazas de herramientas y la comparativa de métricas entre OpenAI y Claude."*
+### ¿Qué diferencias hay entre el bucle de OpenAI y el de Claude?
+Principalmente el formato de los mensajes y de las herramientas:  
+- OpenAI usa `tools=para_openai()` en la Responses API y devuelve elementos con `type: 'function_call'`, respondiendo con `type: 'function_call_output'`.  
+- Claude usa `tools=para_claude()` en la Messages API y devuelve bloques `ToolUseBlock`, esperando de vuelta un mensaje de usuario con bloques de tipo `tool_result` vinculados al `tool_use_id`.
+
+---
+
+### ¿Qué archivos componen mi entregable E2?
+En la carpeta `e2/` están los 3 archivos oficiales:  
+1. `s2_extraer_correo.py` con los 15 casos y la validación en BD.  
+2. `s2_chat_claude.py` con el bucle de herramientas funcionando en Anthropic.  
+3. `analisis.md` con las tablas de evaluación, el detalle de las trazas de herramientas y la comparativa de métricas entre OpenAI y Claude.
 

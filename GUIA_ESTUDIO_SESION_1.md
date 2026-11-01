@@ -1,25 +1,25 @@
-# Guía Maestra de Estudio: Sesión 1 - Integración con LLMs
-> **Asignatura:** Máster en IA · Bloque 4  
-> **Caso Práctico:** Tostadero Retiro S.L.  
-> **Preparación para la defensa oral individual con el profesor**
+# Mis Apuntes: Sesión 1 · Integración con LLMs
+
+Máster en IA · Bloque 4: Agentes y LLMs  
+Caso práctico: Tostadero Retiro S.L.
 
 ---
 
 ## 📌 Tabla de Contenidos
-1. [Diccionario básico: Conceptos de IA para personas normales](#1-diccionario-básico-conceptos-de-ia-para-personas-normales)
+1. [Diccionario básico: Conceptos explicados con mis palabras](#1-diccionario-básico-conceptos-explicados-con-mis-palabras)
 2. [El caso de negocio: Tostadero Retiro S.L.](#2-el-caso-de-negocio-tostadero-retiro-sl)
-3. [El punto de partida: ¿Qué nos dio el profesor?](#3-el-punto-de-partida-qué-nos-dio-el-profesor)
+3. [El punto de partida inicial](#3-el-punto-de-partida-inicial)
 4. [Paso a paso de lo que hicimos (P1 a P5)](#4-paso-a-paso-de-lo-que-hicimos-p1-a-p5)
-5. [La joya técnica: El patrón Adapter en `llm_client.py`](#5-la-joya-técnica-el-patrón-adapter-en-llm_clientpy)
-6. [El gran misterio: ¿Por qué Gemini gastó 500 tokens de salida?](#6-el-gran-misterio-por-qué-gemini-gastó-500-tokens-de-salida)
+5. [Arquitectura clave: El patrón Adapter en `llm_client.py`](#5-arquitectura-clave-el-patrón-adapter-en-llm_clientpy)
+6. [El consumo de tokens: ¿Por qué Gemini gastó 500 tokens de salida?](#6-el-consumo-de-tokens-por-qué-gemini-gastó-500-tokens-de-salida)
 7. [La decisión económica: ¿Qué modelo elegimos y por qué?](#7-la-decisión-económica-qué-modelo-elegimos-y-por-qué)
-8. [Simulacro de examen: Preguntas que te va a hacer el profesor y cómo responder](#8-simulacro-de-examen-preguntas-que-te-va-a-hacer-el-profesor-y-cómo-responder)
+8. [Preguntas clave para repasar](#8-preguntas-clave-para-repasar)
 
 ---
 
-## 1. Diccionario básico: Conceptos de IA para personas normales
+## 1. Diccionario básico: Conceptos explicados con mis palabras
 
-Para poder defender tu trabajo con soltura, necesitas dominar el vocabulario. Olvídate de definiciones matemáticas complejas; aquí tienes la explicación sencilla y real de cada término:
+Para tener bien claros los conceptos de la sesión sin enredos técnicos:
 
 * **LLM (*Large Language Model* o Gran Modelo de Lenguaje):**  
   Es el "cerebro" de IA (como GPT, Claude o Gemini). No razona como un humano; lo que hace es predecir matemáticamente cuál es la siguiente palabra más probable basándose en miles de millones de textos con los que ha sido entrenado.
@@ -211,54 +211,43 @@ Elegimos rotundamente **OpenAI (`gpt-5.4-mini`)** por tres razones objetivas:
 
 ---
 
-## 8. Simulacro de examen: Preguntas que te va a hacer el profesor y cómo responder
+## 8. Preguntas clave para repasar
 
-Aquí tienes las preguntas clave que te puede hacer el profesor frente a su ordenador, con la respuesta natural que debes dar:
-
----
-
-### ❓ Pregunta 1: "¿Por qué creaste `llm_client.py` en vez de llamar a las APIs directamente?"
-> **Tu respuesta:**  
-> *"Porque en producción no conviene acoplar tu aplicación a un proveedor concreto. Aplicamos el patrón **Adapter**: creamos una interfaz única con el método `responder()` que oculta la complejidad interna de cada SDK. Así, si mañana queremos cambiar de OpenAI a Claude o a un modelo local en Ollama, solo cambiamos una línea en nuestro programa principal y todo sigue funcionando."*
+### ¿Por qué creamos `llm_client.py` en vez de llamar a las APIs directamente?
+Porque en producción no conviene acoplar tu aplicación a un proveedor concreto. Aplicamos el patrón **Adapter**: creamos una interfaz única con el método `responder()` que oculta la complejidad interna de cada SDK. Así, si mañana queremos cambiar de OpenAI a Claude o a un modelo local en Ollama, solo cambiamos una línea en nuestro programa principal y todo sigue funcionando.
 
 ---
 
-### ❓ Pregunta 2: "¿Por qué en OpenAI pusiste `max_output_tokens` y en Claude `max_tokens`?"
-> **Tu respuesta:**  
-> *"Porque cada SDK oficial tiene su propia nomenclatura. La nueva Responses API de OpenAI llama al parámetro `max_output_tokens`, mientras que la Messages API de Anthropic lo llama `max_tokens`. Además, en Claude ese parámetro es estrictamente obligatorio, por lo que en el Adapter le pusimos un valor por defecto (1024) por si el usuario no especifica ninguno."*
+### ¿Por qué en OpenAI pusimos `max_output_tokens` y en Claude `max_tokens`?
+Porque cada SDK oficial tiene su propia nomenclatura. La nueva Responses API de OpenAI llama al parámetro `max_output_tokens`, mientras que la Messages API de Anthropic lo llama `max_tokens`. Además, en Claude ese parámetro es estrictamente obligatorio, por lo que en el Adapter le pusimos un valor por defecto (1024) por si el usuario no especifica ninguno.
 
 ---
 
-### ❓ Pregunta 3: "¿Cómo calculas el coste en dólares de cada respuesta?"
-> **Tu respuesta:**  
-> *"En `llm_client.py` creamos el diccionario `PRECIOS` con los costes oficiales por millón de tokens sacados de OpenRouter: `(precio_entrada, precio_salida)`. Luego, en la clase `Respuesta`, tenemos la propiedad `coste_usd` que aplica la fórmula:*  
-> `(tokens_entrada * precio_entrada + tokens_salida * precio_salida) / 1.000.000`  
-> *Nos devuelve el coste exacto en dólares."*
+### ¿Cómo calculamos el coste en dólares de cada respuesta?
+En `llm_client.py` creamos el diccionario `PRECIOS` con los costes oficiales por millón de tokens sacados de OpenRouter: `(precio_entrada, precio_salida)`. Luego, en la clase `Respuesta`, tenemos la propiedad `coste_usd` que aplica la fórmula:  
+`(tokens_entrada * precio_entrada + tokens_salida * precio_salida) / 1.000.000`  
+Nos devuelve el coste exacto en dólares.
 
 ---
 
-### ❓ Pregunta 4: "Veo que en `comparativa.csv` Gemini gasta más de 500 tokens de salida y OpenAI solo 50. ¿Hay un bug en tu código?"
-> **Tu respuesta:**  
-> *"No, no es ningún bug. El código recoge exactamente lo que devuelve la API en `r.usage`. Lo que ocurre es que `gemini-3.8-flash` tiene activado el razonamiento interno (*thinking tokens*). El modelo genera cientos de tokens de monólogo interior antes de dar la respuesta visible. Esos tokens no aparecen en el texto final, pero la API los cobra y los computa en el uso de salida."*
+### ¿Por qué en `comparativa.csv` Gemini gasta más de 500 tokens de salida y OpenAI solo 50?
+El código recoge exactamente lo que devuelve la API en `r.usage`. Lo que ocurre es que `gemini-3.8-flash` tiene activado el razonamiento interno (*thinking tokens*). El modelo genera cientos de tokens de monólogo interior antes de dar la respuesta visible. Esos tokens no aparecen en el texto final, pero la API los cobra y los computa en el uso de salida.
 
 ---
 
-### ❓ Pregunta 5: "¿Qué tienes en la carpeta `e1/` y por qué?"
-> **Tu respuesta:**  
-> *"En la carpeta `e1/` está el entregable oficial E1 que usted pidió:*  
-> *1. `llm_client.py` con el Adapter terminado y los precios.*  
-> *2. `comparativa.csv` con las 15 llamadas y las notas de calidad del 1 al 5.*  
-> *3. `analisis.md` con el informe justificativo de costes, latencia y la elección del modelo para 2.000 correos."*
+### ¿Qué tenemos en la carpeta `e1/`?
+En la carpeta `e1/` está el entregable E1:  
+1. `llm_client.py` con el Adapter terminado y los precios.  
+2. `comparativa.csv` con las 15 llamadas y las notas de calidad del 1 al 5.  
+3. `analisis.md` con el informe justificativo de costes, latencia y la elección del modelo para 2.000 correos.
 
 ---
 
-### ❓ Pregunta 6: "¿Dónde están tus claves de API? ¿Por qué no las veo en GitHub?"
-> **Tu respuesta:**  
-> *"Están guardadas en local en el archivo `.env`. Como contiene información sensible y claves que gastan dinero, ese archivo está incluido en `.gitignore` para que bajo ninguna circunstancia se suba al repositorio público de GitHub."*
+### ¿Dónde están mis claves de API y por qué no están en GitHub?
+Están guardadas en local en el archivo `.env`. Como contiene información sensible y claves que gastan dinero, ese archivo está incluido en `.gitignore` para que bajo ninguna circunstancia se suba al repositorio público de GitHub.
 
 ---
 
-### ❓ Pregunta 7: "¿Qué diferencia hay entre llamar a los modelos en modo normal y en streaming?"
-> **Tu respuesta:**  
-> *"En modo normal, la conexión espera hasta que el modelo termina de generar todo el texto y lo entrega completo de golpe. En streaming, la API utiliza Server-Sent Events (SSE) para enviar cada fragmento (*delta*) conforme se procesa. No reduce el tiempo total de generación, pero reduce drásticamente la latencia percibida por el usuario (*Time To First Token*)."*
+### ¿Qué diferencia hay entre llamar a los modelos en modo normal y en streaming?
+En modo normal, la conexión espera hasta que el modelo termina de generar todo el texto y lo entrega completo de golpe. En streaming, la API utiliza Server-Sent Events (SSE) para enviar cada fragmento (*delta*) conforme se procesa. No reduce el tiempo total de generación, pero reduce drásticamente la latencia percibida (*Time To First Token*).
 
